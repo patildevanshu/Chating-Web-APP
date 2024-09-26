@@ -84,7 +84,8 @@ const logout = async(req , res , next) =>{
 
 const loadDashboard = async(req , res , next) =>{
     try {
-        res.render('dashboard' , { user: req.session.user });
+        let users = await User.find({ _id: {$nin:[req.session.user._id]}});
+        res.render('dashboard' , { user: req.session.user , users: users });
     } catch (error) {
         console.error(error.message);
     }

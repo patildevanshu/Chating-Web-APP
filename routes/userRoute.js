@@ -5,6 +5,7 @@ const multer = require("multer");
 const userController = require("../controllers/userController");
 const session = require('express-session')
 const { SESSION_SECRET } = process.env;
+const auth = require('../middlewares/auth');
 
 app.use(session({secret: SESSION_SECRET}));
 
@@ -29,14 +30,14 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.get('/register' , userController.registerLoad);
+app.get('/register' ,auth.isLogout, userController.registerLoad);
 app.post('/register' , upload.single('image') , userController.register );
 
-app.get('/', userController.loginLoad);
-app.post('/', userController.login);
-app.get('/logout', userController.logout);
+app.get('/', auth.isLogout ,userController.loginLoad);
+app.post('/',userController.login);
+app.get('/logout', auth.isLogin , userController.logout);
 
-app.get('/dashboard', userController.loadDashboard);
+app.get('/dashboard', auth.isLogin , userController.loadDashboard);
 
 app.get('*' , function (req, res) {
     res.redirect('/');
