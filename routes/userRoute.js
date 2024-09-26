@@ -3,6 +3,10 @@ const app = express();
 const path = require("path");
 const multer = require("multer");
 const userController = require("../controllers/userController");
+const session = require('express-session')
+const { SESSION_SECRET } = process.env;
+
+app.use(session({secret: SESSION_SECRET}));
 
 const bodyParser = require("body-parser");
 
@@ -27,5 +31,15 @@ const upload = multer({ storage: storage });
 
 app.get('/register' , userController.registerLoad);
 app.post('/register' , upload.single('image') , userController.register );
+
+app.get('/', userController.loginLoad);
+app.post('/', userController.login);
+app.get('/logout', userController.logout);
+
+app.get('/dashboard', userController.loadDashboard);
+
+app.get('*' , function (req, res) {
+    res.redirect('/');
+})
 
 module.exports = app;
