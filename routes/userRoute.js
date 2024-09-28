@@ -38,6 +38,8 @@ app.post('/',userController.login);
 app.get('/logout', auth.isLogin , userController.logout);
 
 app.get('/dashboard', auth.isLogin , userController.loadDashboard);
+app.post('/save-chat' , userController.saveChat);
+app.post('/delete-chat' , userController.deleteChat);
 
 app.get('*' , function (req, res) {
     res.redirect('/');

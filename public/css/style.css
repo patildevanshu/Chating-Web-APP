@@ -8352,3 +8352,27 @@ a[data-toggle="collapse"] {
   .chat-section{
     display: none;
   }
+
+  .online-status{
+    color: green;
+  
+  }
+  .offline-status{
+    color: red;
+    text-align: right;
+  }
+
+  .current-user-chat{
+    text-align: right;
+    margin: 10px;
+    color: black;
+  }
+  .distance-user-chat{
+    text-align: left;
+    margin: 10px;
+    color: black;
+  }
+
+  .fa-trash{
+    color: red;
+  }
