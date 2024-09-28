@@ -9,7 +9,16 @@ const userRouter = require('./routes/userRoute');
 const User = require('./models/user');
 const Chat = require('./models/chat');
 
-mongoose.connect('mongodb://127.0.0.1:27017/chating-web-app')
+app.use(cors(
+  {
+      origin: ["https://chating-web-app.vercel.app"],
+      methods: ["POST", "GET"],
+      credentials: true
+  }
+));
+app.use(express.json())
+
+mongoose.connect('mongodb+srv://devanshupatil34:wQGVb1VxlnALXzaq@cluster0.z4hcv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
 const io = require('socket.io')(http);
 
