@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "[my-framework] build --output public"
+    "build": "[my-framework] build --output public",
+    "install": "npm install"
   },
   "author": "Devanshu patil",
   "license": "ISC",
