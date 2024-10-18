@@ -3,6 +3,9 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
+
+// mongo db
+
 const mongoose = require("mongoose");
 
 const userRouter = require('./routes/userRoute');
