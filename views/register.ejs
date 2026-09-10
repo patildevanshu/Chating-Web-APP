@@ -1,23 +1,101 @@
-<h1>Register</h1>
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Register - NexaChat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            background-color: #0f141c;
+            color: #e1e4e8;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        .auth-card {
+            background-color: #1a202c;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 480px;
+            padding: 30px;
+        }
+        .form-control {
+            background-color: #0f141c;
+            border: 1px solid #4a5568;
+            color: #fff;
+        }
+        .form-control:focus {
+            background-color: #0f141c;
+            border-color: #3182ce;
+            color: #fff;
+        }
+        .custom-file-label {
+            background-color: #0f141c;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+        }
+        .custom-file-label::after {
+            background-color: #2d3748;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h3 class="font-weight-bold text-primary"><i class="fa fa-user-plus"></i> Create Account</h3>
+            <p class="text-muted small">Join end-to-end encrypted secure messaging</p>
+        </div>
 
-<form action="" method="post" enctype="multipart/form-data">
-    <input type="text" name="name" placeholder="Enter name" required >
-    <br><br>
-    <input type="email" name="email" placeholder="Enter email" required >
-    <br><br>
-    <input type="number" name="mobile" placeholder="Enter mobile no." required >
-    <br><br>
-    <input type="file" name="image" required >
-    <br><br>
-    <input type="password" name="password" placeholder="Enter password" required >
-    <br><br>
-    <input type="submit" value="Register">
-</form>
+        <% if(typeof message !== 'undefined'){ %>
+            <% if(message.toLowerCase().includes('success')){ %>
+                <div class="alert alert-success py-2" role="alert">
+                    <small><%= message %> <a href="/" class="alert-link">Click here to login</a></small>
+                </div>
+            <% } else { %>
+                <div class="alert alert-danger py-2" role="alert">
+                    <small><%= message %></small>
+                </div>
+            <% } %>
+        <% } %>
 
-<%
-    if(typeof message !== 'undefined'){
-        %>
-        <p style="color: green;"> <%= message %> </p>
-        <%
-    } 
- %>
+        <form action="/register" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="small text-muted font-weight-bold">Full Name</label>
+                <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+            </div>
+            <div class="form-group">
+                <label class="small text-muted font-weight-bold">Email address</label>
+                <input type="email" name="email" class="form-control" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label class="small text-muted font-weight-bold">Mobile Number</label>
+                <input type="number" name="mobile" class="form-control" placeholder="Enter mobile number" required>
+            </div>
+            <div class="form-group">
+                <label class="small text-muted font-weight-bold">Profile Photo (Optional)</label>
+                <input type="file" name="image" class="form-control-file text-muted small">
+            </div>
+            <div class="form-group">
+                <label class="small text-muted font-weight-bold">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Create password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block mt-4 py-2 font-weight-bold">
+                <i class="fa fa-check-circle mr-1"></i> Register
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="text-muted small mb-0">Already have an account? <a href="/" class="text-primary font-weight-bold">Log In</a></p>
+        </div>
+    </div>
+</body>
+</html>

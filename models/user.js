@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     email:{
         type:String,
         required: true,
+        unique: true
     },
     image:{
         type:String,
@@ -26,6 +27,10 @@ const userSchema = new mongoose.Schema({
         type:Number,
         required: true,
     },
+    publicKey:{
+        type: Object,
+        default: null
+    }
 },
 { timestamps : true }
 );

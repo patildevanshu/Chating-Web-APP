@@ -1,239 +1,377 @@
 <%- include('layouts/header.ejs') %>
 
-<h2 class="mb-4">hii! , <%= user.name %></h2>
-
-<div class="row">
-  <div class="col-md-4">
-    <ul class="list-group">
-      <% if(users.length > 0){ for (i of users) { %>
-      <li
-        class="list-group-item list-group-item-dark cursor-pointer user-list"
-        data-id="<%= i._id %>"
-      >
-        <img src="<%= i.image %>" alt="" width="50px" height="50px" />
-        <%= i.name %> <% if (i.is_online === '1') { %>
-        <div>
-          <sup class="online-status" id="<%= i._id %>-status">online</sup>
-        </div>
-        <% } else { %>
-        <sup class="offline-status" id="<%= i._id %>-status">offline</sup>
-        <% } %>
-      </li>
-      <% } %> <% } %>
-    </ul>
-  </div>
-
-  <div class="col-md-8">
-    <h3 class="start-head">Click to start chat</h3>
-    <div class="chat-section">
-      <div id="chat-container"></div>
-
-      <form action="" id="chat-form">
-        <input
-          type="text"
-          name="message"
-          placeholder="Message"
-          class="border"
-          id="message"
-          required
-        />
-        <input type="submit" value="send message" class="btn btn-primary" />
-      </form>
-    </div>
-  </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Welcome, <%= user.name %>!</h2>
+    <span class="badge badge-success px-3 py-2" id="e2ee-status-badge">
+        <i class="fa fa-shield"></i> E2EE Security Active
+    </span>
 </div>
 
-
-  <!-- Modal -->
-  <div class="modal fade" id="deleteChatModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Delete Chat</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-dark text-white">
+            <div class="card-header border-secondary">
+                <h5 class="mb-0"><i class="fa fa-users mr-2"></i> Contacts</h5>
+            </div>
+            <ul class="list-group list-group-flush user-list-container" style="max-height: 550px; overflow-y: auto;">
+                <% if(users && users.length > 0){ %>
+                    <% users.forEach(function(targetUser) { %>
+                        <li class="list-group-item list-group-item-dark cursor-pointer user-list d-flex align-items-center justify-content-between"
+                            data-id="<%= targetUser._id %>"
+                            data-name="<%= targetUser.name %>"
+                            data-image="<%= targetUser.image %>">
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative mr-3">
+                                    <img src="/<%= targetUser.image %>" 
+                                         alt="<%= targetUser.name %>" 
+                                         class="rounded-circle avatar-img" 
+                                         onerror="this.src='/images/default-avatar.svg'">
+                                    <span class="status-indicator <%= targetUser.is_online === '1' ? 'status-online' : 'status-offline' %>" 
+                                          id="status-<%= targetUser._id %>"></span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 text-white"><%= targetUser.name %></h6>
+                                    <small class="text-muted"><%= targetUser.email %></small>
+                                </div>
+                            </div>
+                            <i class="fa fa-chevron-right text-muted"></i>
+                        </li>
+                    <% }); %>
+                <% } else { %>
+                    <li class="list-group-item list-group-item-dark text-center py-4">
+                        <i class="fa fa-user-times fa-2x mb-2 text-muted"></i>
+                        <p class="mb-0 text-muted">No other registered users found.</p>
+                    </li>
+                <% } %>
+            </ul>
         </div>
-        <form id="delete-chat-form">
-        <div class="modal-body">
-            <input type="hidden" name="id" id="delete-message-id">
-          <p>Delete Message for Everyone?</p>
-          <p><b id="delete-message"></b></p>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-danger">Delete</button>
-        </div>
-        </form>
-      </div>
     </div>
-  </div>
+
+    <div class="col-md-8">
+        <div class="card chat-card">
+            <!-- Start Chat Placeholder -->
+            <div class="start-head text-center py-5">
+                <i class="fa fa-comments-o fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Select a contact to start secure chatting</h4>
+                <p class="text-secondary small">
+                    <i class="fa fa-lock"></i> All messages are end-to-end encrypted with ECDH (P-256) and AES-GCM (256-bit).
+                </p>
+            </div>
+
+            <!-- Active Chat Section -->
+            <div class="chat-section" style="display: none;">
+                <div class="chat-header d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <img src="/images/default-avatar.svg" id="chat-header-avatar" class="rounded-circle mr-3 avatar-img">
+                        <div>
+                            <h5 class="mb-0" id="chat-header-name">Chat</h5>
+                            <span class="badge badge-info small">
+                                <i class="fa fa-lock"></i> End-to-End Encrypted
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chat-container" class="p-3"></div>
+
+                <div class="chat-footer p-3 border-top">
+                    <form action="" id="chat-form" class="d-flex align-items-center">
+                        <input type="text" name="message" placeholder="Type an encrypted message..." class="form-control mr-2" id="message" autocomplete="off" required>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center" id="send-btn">
+                            <i class="fa fa-paper-plane mr-2"></i> Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteChatModal" tabindex="-1" role="dialog" aria-labelledby="deleteChatModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteChatModalTitle">Delete Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="delete-chat-form">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="delete-message-id">
+                    <p>Are you sure you want to delete this message for everyone?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
-  let sender_id = "<%= user._id %>";
-  var receiver_id = "";
-  var socket = io("/users-namespace", {
-    auth: {
-      token: sender_id,
-    },
-  });
+    let sender_id = '<%= user._id %>';
+    let receiver_id = '';
+    let receiver_name = '';
 
-  function scrollChat() {
-    $jq("#chat-container").animate(
-      {
-        scrollTop:
-          $("#chat-container").offset().top +
-          $("#chat-container")[0].scrollHeight,
-      },
-      0
-    );
-  }
-
-  $(document).ready(function () {
-    $(".user-list").click(function () {
-      var userId = $(this).attr("data-id");
-      receiver_id = userId;
-
-      $(".start-head").hide();
-      $(".chat-section").show();
-
-      socket.emit("existsChat", {
-        sender_id: sender_id,
-        receiver_id: receiver_id,
-      });
-    });
-  });
-
-  // update user online status
-  socket.on("getOnlineUser", function (data) {
-    // let user_id = $(this).attr('id').split('-')[0];
-    $("#" + data.user_id + "-status").text("online");
-    $("#" + data.user_id + "-status").removeClass("offline-status");
-    $("#" + data.user_id + "-status").addClass("online-status");
-  });
-
-  // update user offline status
-  socket.on("getOfflineUser", function (data) {
-    // let user_id = $(this).attr('id').split('-')[0];
-    $("#" + data.user_id + "-status").text("offline");
-    $("#" + data.user_id + "-status").removeClass("online-status");
-    $("#" + data.user_id + "-status").addClass("offline-status");
-  });
-
-  // chat save of user
-  const $jq = jQuery.noConflict();
-  $("#chat-form").submit(function (event) {
-    event.preventDefault();
-
-    var message = $jq("#message").val();
-    console.log(message);
-
-    $jq.ajax({
-      url: "/save-chat",
-      type: "POST",
-      data: {
-        message: message,
-        sender_id: sender_id,
-        receiver_id: receiver_id,
-      },
-      success: function (data) {
-        if (data.success) {
-          console.log(data);
-          $("#message").val("");
-          let chat = data.data.message;
-          // console.log(chat);
-          let html =
-            `<div class="current-user-chat" id="`+data.data._id+`"><h5>`+chat +
-            `<i class="fa fa-trash" aria-hidden="true" data-id='`+data.data._id+`' data-toggle="modal" data-target="#deleteChatModel" ></i></h5><sup class="online-status" > ${data.data.createdAt} </sup></div>`;
-          $("#chat-container").append(html);
-          socket.emit("newChat", data.data);
-          scrollChat();
-        } else {
-          alert(data.msg);
+    // Socket.io connection with auth token
+    var socket = io('/users-namespace', {
+        auth: {
+            token: sender_id
         }
-      },
     });
-  });
 
-  socket.on("loadNewChat", function (data) {
-    if (sender_id == data.receiver_id && receiver_id == data.sender_id) {
-      let html =
-        `<div class="distance-user-chat" id="`+data._id+`">
-                            <h5>` +
-        data.message +
-        `</h5><sup class="online-status" > ${data.createdAt} </sup>    
-                        </div>`;
-      $("#chat-container").append(html);
-      scrollChat();
-    }
-  });
-
-  //   load old chat
-  socket.on("loadChats", function (data) {
-    $("#chat-container").html("");
-
-    var chats = data.chats;
-
-    let html = ``;
-
-    for (let x = 0; x < chats.length; x++) {
-      let addClass = "";
-      if (chats[x]["sender_id"] == sender_id) {
-        addClass = "current-user-chat";
-      } else {
-        addClass = "distance-user-chat";
-      }
-
-      html +=
-        `<div class="${addClass}" id="`+chats[x]._id+`" >
-            <h5>` + chats[x].message + ``;
-
-        if (chats[x]["sender_id"] == sender_id) {
-            html +=`<i class="fa fa-trash" aria-hidden="true" data-id='`+chats[x]._id+`' data-toggle="modal" data-target="#deleteChatModel" ></i>`
+    function scrollChat() {
+        const container = document.getElementById('chat-container');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
         }
-         html += `</h5>
-        <sup class="online-status" > ${chats[x].createdAt} </sup>
-            </div>`;
     }
-    $("#chat-container").append(html);
-    scrollChat();
-  });
 
-  $(document).on('click', '.fa-trash', function(){
-    let msg = $(this).parent().text();
-    $('#delete-message').text(msg);
+    function formatTime(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
-    $('#delete-message-id').val($(this).attr('data-id'))
-  })
+    $(document).ready(async function() {
+        // Initialize client-side End-to-End Encryption
+        const initialized = await E2EE.init(sender_id);
+        if (!initialized) {
+            console.warn('[E2EE] Could not initialize encryption keys.');
+        }
 
-  $("#delete-chat-form").submit(function(event){
-    event.preventDefault();
-    let id = $('#delete-message-id').val();
+        // Contact selection
+        $('.user-list').click(function() {
+            $('.user-list').removeClass('active-user');
+            $(this).addClass('active-user');
 
-    $jq.ajax({
-        url: '/delete-chat',
-        type: 'POST',
-        data: {
-            id: id
-        },
-        success: function(data){
-            if(data.success){
-                $('#deleteChatModel').modal('hide');
-                $('#'+id).remove();
-                socket.emit('chatDeleted' , id);
-            }else{
-                alert(data.msg);
+            receiver_id = $(this).attr('data-id');
+            receiver_name = $(this).attr('data-name');
+            const receiver_image = $(this).attr('data-image');
+
+            $('#chat-header-name').text(receiver_name);
+            $('#chat-header-avatar').attr('src', '/' + receiver_image);
+
+            $('.start-head').hide();
+            $('.chat-section').show();
+
+            $('#chat-container').html(`
+                <div class="text-center py-4 text-muted">
+                    <i class="fa fa-spinner fa-spin fa-2x mb-2"></i>
+                    <p class="small">Retrieving and decrypting chat history...</p>
+                </div>
+            `);
+
+            // Request existing chats
+            socket.emit('existsChat', {
+                sender_id: sender_id,
+                receiver_id: receiver_id
+            });
+        });
+
+        // Online / Offline live broadcast listeners
+        socket.on('getOnlineUser', function(data) {
+            $('#status-' + data.user_id).removeClass('status-offline').addClass('status-online');
+        });
+
+        socket.on('getOfflineUser', function(data) {
+            $('#status-' + data.user_id).removeClass('status-online').addClass('status-offline');
+        });
+
+        // Send encrypted chat message
+        $('#chat-form').submit(async function(e) {
+            e.preventDefault();
+            const messageText = $('#message').val().trim();
+            if (!messageText || !receiver_id) return;
+
+            $('#message').val('');
+
+            try {
+                // Encrypt message client-side
+                const encrypted = await E2EE.encryptMessage(messageText, receiver_id);
+                if (!encrypted) {
+                    alert('Recipient has not registered an E2EE public key yet. Once they log in, E2EE will activate.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/save-chat',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        receiver_id: receiver_id,
+                        message: encrypted.ciphertext,
+                        iv: encrypted.iv
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            const chatData = response.data;
+                            const time = formatTime(chatData.createdAt);
+
+                            const html = `
+                                <div class="message-row sent-row" id="chat-msg-${chatData._id}">
+                                    <div class="chat-bubble current-user-chat">
+                                        <div class="message-content">${escapeHtml(messageText)}</div>
+                                        <div class="message-meta">
+                                            <span class="time">${time}</span>
+                                            <i class="fa fa-lock e2ee-icon" title="End-to-End Encrypted"></i>
+                                            <i class="fa fa-trash delete-chat-btn" data-id="${chatData._id}" data-toggle="modal" data-target="#deleteChatModal"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            $('#chat-container').append(html);
+                            scrollChat();
+
+                            // Emit new encrypted chat over socket
+                            socket.emit('newChat', chatData);
+                        } else {
+                            alert('Error sending message: ' + response.msg);
+                        }
+                    },
+                    error: function(err) {
+                        console.error('Save chat error:', err);
+                        alert('Failed to send encrypted message.');
+                    }
+                });
+            } catch (err) {
+                console.error('Encryption error:', err);
+                alert('Encryption failed.');
             }
-        }
+        });
+
+        // Receive real-time incoming encrypted chat
+        socket.on('loadNewChat', async function(data) {
+            if (data.sender_id === receiver_id) {
+                const plainText = await E2EE.decryptMessage(data.message, data.iv, data.sender_id);
+                const time = formatTime(data.createdAt);
+
+                const html = `
+                    <div class="message-row received-row" id="chat-msg-${data._id}">
+                        <div class="chat-bubble distance-user-chat">
+                            <div class="message-content">${escapeHtml(plainText)}</div>
+                            <div class="message-meta">
+                                <span class="time">${time}</span>
+                                <i class="fa fa-lock e2ee-icon" title="End-to-End Encrypted"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#chat-container').append(html);
+                scrollChat();
+            }
+        });
+
+        // Load and decrypt chat history
+        socket.on('loadChats', async function(data) {
+            $('#chat-container').html('');
+            const chats = data.chats || [];
+
+            if (chats.length === 0) {
+                $('#chat-container').html(`
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa fa-lock fa-2x mb-2 text-info"></i>
+                        <p class="mb-0">This chat is end-to-end encrypted.</p>
+                        <small>No one outside of this chat, not even the server, can read your messages.</small>
+                    </div>
+                `);
+                return;
+            }
+
+            for (let i = 0; i < chats.length; i++) {
+                const chat = chats[i];
+                const isSentByMe = (chat.sender_id === sender_id);
+                const peerId = isSentByMe ? receiver_id : chat.sender_id;
+
+                let plainText = chat.message;
+                if (chat.iv) {
+                    plainText = await E2EE.decryptMessage(chat.message, chat.iv, peerId);
+                }
+
+                const time = formatTime(chat.createdAt);
+
+                let msgHtml = '';
+                if (isSentByMe) {
+                    msgHtml = `
+                        <div class="message-row sent-row" id="chat-msg-${chat._id}">
+                            <div class="chat-bubble current-user-chat">
+                                <div class="message-content">${escapeHtml(plainText)}</div>
+                                <div class="message-meta">
+                                    <span class="time">${time}</span>
+                                    <i class="fa fa-lock e2ee-icon" title="End-to-End Encrypted"></i>
+                                    <i class="fa fa-trash delete-chat-btn" data-id="${chat._id}" data-toggle="modal" data-target="#deleteChatModal"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    msgHtml = `
+                        <div class="message-row received-row" id="chat-msg-${chat._id}">
+                            <div class="chat-bubble distance-user-chat">
+                                <div class="message-content">${escapeHtml(plainText)}</div>
+                                <div class="message-meta">
+                                    <span class="time">${time}</span>
+                                    <i class="fa fa-lock e2ee-icon" title="End-to-End Encrypted"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                $('#chat-container').append(msgHtml);
+            }
+            scrollChat();
+        });
+
+        // Open delete modal
+        $(document).on('click', '.delete-chat-btn', function() {
+            const msgId = $(this).attr('data-id');
+            $('#delete-message-id').val(msgId);
+        });
+
+        // Handle delete message submission
+        $('#delete-chat-form').submit(function(e) {
+            e.preventDefault();
+            const msgId = $('#delete-message-id').val();
+
+            $.ajax({
+                url: '/delete-chat',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: msgId }),
+                success: function(response) {
+                    if (response.success) {
+                        $('#deleteChatModal').modal('hide');
+                        $('#chat-msg-' + msgId).remove();
+                        socket.emit('chatDeleted', { id: msgId, receiver_id: receiver_id });
+                    } else {
+                        alert('Error deleting chat: ' + response.msg);
+                    }
+                },
+                error: function(err) {
+                    console.error('Delete chat error:', err);
+                    alert('Failed to delete chat.');
+                }
+            });
+        });
+
+        // Message deleted by peer
+        socket.on('chatMessageDeleted', function(msgId) {
+            $('#chat-msg-' + msgId).remove();
+        });
     });
-    });
 
-    socket.on('chatMessageDeleted' , function(id){
-        $('#'+id).remove();
-        // $('#deleteChatModel').modal('hide');
-    })
-
-
+    function escapeHtml(string) {
+        if (!string) return '';
+        return String(string)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 </script>
 
 <%- include('layouts/footer.ejs') %>

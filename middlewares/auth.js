@@ -1,29 +1,25 @@
 const isLogin = async (req, res, next) => {
-
     try {
-        if (req.session.user) {
-            
-        } else {
-            res.redirect('/');
+        if (!req.session || !req.session.user) {
+            return res.redirect('/');
         }
         next();
     } catch (error) {
         console.error(error.message);
+        return res.redirect('/');
     }
-
 };
 
 const isLogout = async (req, res, next) => {
-
     try {
-        if (req.session.user) {
-            res.redirect('/dashboard');   
+        if (req.session && req.session.user) {
+            return res.redirect('/dashboard');
         }
         next();
     } catch (error) {
         console.error(error.message);
+        next();
     }
-
 };
 
 module.exports = {

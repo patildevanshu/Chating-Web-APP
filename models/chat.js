@@ -13,6 +13,10 @@ const chatSchema = new mongoose.Schema({
     message: {
         type: String,
         required: true
+    },
+    iv: {
+        type: String,
+        default: ''
     }
 },
 { timestamps : true }
